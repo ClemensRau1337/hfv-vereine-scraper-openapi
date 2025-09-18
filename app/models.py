@@ -1,22 +1,24 @@
-from typing import Optional
-from pydantic import BaseModel, AnyUrl
+from pydantic import AnyUrl, BaseModel
+
 
 class Address(BaseModel):
     full: str
-    street: Optional[str] = None
-    postcode: Optional[str] = None
-    city: Optional[str] = None
+    street: str | None = None
+    postcode: str | None = None
+    city: str | None = None
+
 
 class Verein(BaseModel):
     id: str
     name: str
-    url: Optional[AnyUrl] = None
-    address: Optional[Address] = None
-    phone: Optional[str] = None
-    email: Optional[str] = None
-    website: Optional[AnyUrl] = None
+    url: AnyUrl | None = None
+    address: Address | None = None
+    phone: str | None = None
+    email: str | None = None
+    website: AnyUrl | None = None
+
 
 class VereinListItem(BaseModel):
     id: str
     name: str
-    url: Optional[AnyUrl] = None
+    url: AnyUrl | None = None

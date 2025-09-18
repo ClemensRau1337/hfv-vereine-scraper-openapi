@@ -1,11 +1,22 @@
 # hfv-vereine-scraper-openapi
 
-Open-Source FastAPI, der Vereine vom **Hamburger Fußball-Verband** (Quelle: https://www.hfv.de/vereine) scraped, cached und über 2 Endpunkte anbietet.
+[![CI](https://github.com/ClemensRau1337/hfv-vereine-scraper-openapi/actions/workflows/ci.yml/badge.svg)](https://github.com/ClemensRau1337/hfv-vereine-scraper-openapi/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Version](https://img.shields.io/github/v/release/ClemensRau1337/hfv-vereine-scraper-openapi?sort=semver)](https://github.com/ClemensRau1337/hfv-vereine-scraper-openapi/releases)
+[![Last Commit](https://img.shields.io/github/last-commit/ClemensRau1337/hfv-vereine-scraper-openapi)](https://github.com/ClemensRau1337/hfv-vereine-scraper-openapi/commits)
+![Python](https://img.shields.io/badge/python-3.11%2B-blue)
+
+[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen?logo=fastapi)](https://hfv-vereine-scraper-openapi.prod.wyndiq.de)
+[![Demo Status](https://img.shields.io/website?url=https%3A%2F%2Fhfv-vereine-scraper-openapi.prod.wyndiq.de&label=demo&up_message=online&down_message=offline)](https://hfv-vereine-scraper-openapi.prod.wyndiq.de)
+[![Docs](https://img.shields.io/badge/OpenAPI-Docs-blue)](https://hfv-vereine-scraper-openapi.prod.wyndiq.de/docs)
+[![OpenAPI JSON](https://img.shields.io/badge/OpenAPI-JSON-informational)](https://hfv-vereine-scraper-openapi.prod.wyndiq.de/openapi.json)
+
+Open-Source FastAPI, der Vereine vom **Hamburger Fußball-Verband** (Quelle: <https://www.hfv.de/vereine>) scraped, cached und über 2 Endpunkte anbietet.
 
 - `GET /vereine` → Liste **nur** mit `id`, `name`, `url`
 - `GET /verein/{id_or_name}` → Details inkl. **strukturierter** `address` (`full`, `street`, `postcode`, `city`) sowie `phone`, `email`, `website`
 
-> Stand: 2025-09-17
+### Demo: <https://hfv-vereine-scraper-openapi.prod.wyndiq.de>
 
 ## Quickstart
 
@@ -54,4 +65,4 @@ hfv_vereine_api/
 
 ## Attribution
 
-Datenquelle: **HFV.de** – https://www.hfv.de/vereine
+Datenquelle: **HFV.de** – <https://www.hfv.de/vereine>

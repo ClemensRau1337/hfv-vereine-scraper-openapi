@@ -11,6 +11,21 @@ env/
 
 # Environment files
 .env
+.env.*
+
+# Tool caches
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+.cache/
+
+# Test / coverage
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+coverage.xml
 
 # Distribution / packaging
 .Python
@@ -29,25 +44,24 @@ var/
 .installed.cfg
 *.egg
 
-# Unit test / coverage reports
-.pytest_cache/
-.coverage
-htmlcov/
-.tox/
-.nox/
-coverage.xml
-
 # IDE / Editor
 .idea/
 .vscode/
 *.swp
 
-# Cache / data
-data/vereine_cache.json
+# Data / generated
+data/
+openapi.json
 
 # Logs
 *.log
 
-# macOS / Linux
+# OS
 .DS_Store
 Thumbs.db
+
+# Python tools / pyenv
+.python-version
+
+# Jupyter
+.ipynb_checkpoints/

@@ -3,10 +3,10 @@ requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "hfv_vereine_api"
-version = "0.1.0"
+name = "hfv_vereine_scraper_openapi"
+version = "1.0.0"
 description = "FastAPI service that scrapes HFV clubs and serves them via an API."
-authors = [{ name="Your Name"}]
+authors = [{ name = "Clemens Rau" }]
 requires-python = ">=3.10"
 dependencies = [
     "fastapi>=0.115.0",
@@ -17,3 +17,34 @@ dependencies = [
     "httpx>=0.27.0",
     "pydantic>=2.7.0",
 ]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.6.0",
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "openapi-spec-validator>=0.7.1",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+# Ordner/Dateien, die Ruff nicht prüfen soll:
+exclude = [
+  "data/",
+  "openapi.json",
+  ".venv/",
+  "build/",
+  "dist/",
+  ".pytest_cache/",
+]
+
+[tool.ruff.lint]
+# Basis + Imports + (optional) PyUpgrade
+select = ["E", "F", "I", "UP"]
+# Beispiel für Ausnahmen (auskommentieren wenn gewünscht):
+# ignore = ["E501"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"

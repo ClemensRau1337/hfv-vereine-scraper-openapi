@@ -2,18 +2,19 @@ from __future__ import annotations
 
 from contextlib import asynccontextmanager
 
-from typing import List
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from . import cache
 from .models import Verein, VereinListItem
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await cache.load_cache()
     yield
     await cache.close()
+
 
 app = FastAPI(
     title="HFV Vereine Scraper Open API (Unoffiziell)",
@@ -30,10 +31,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/vereine", response_model=List[VereinListItem])
+
+@app.get("/vereine", response_model=list[VereinListItem])
 async def get_vereine():
     data = await cache.get_all()
     return [{"id": v["id"], "name": v["name"], "url": v["url"]} for v in data]
+
 
 @app.get("/verein/{identifier}", response_model=Verein)
 async def get_verein(identifier: str):

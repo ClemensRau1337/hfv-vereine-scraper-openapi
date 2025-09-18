@@ -3,28 +3,27 @@ from __future__ import annotations
 import asyncio
 import os
 import re
-from typing import Dict, List, Tuple
 from urllib.parse import urljoin, urlparse
 
 import aiohttp
 from bs4 import BeautifulSoup
 
-from urllib.parse import urlparse
-
-from .utils import slugify, extract_postcode_city
+from .utils import extract_postcode_city, slugify
 
 BASE_LIST_URL = os.getenv("BASE_LIST_URL", "https://www.hfv.de/vereine")
 USER_AGENT = "HFV-Vereine-API (++https://github.com/ClemensRau1337/hfv-vereine-scraper-openapi)"
 CONCURRENCY = int(os.getenv("SCRAPE_CONCURRENCY", "8"))
 
+
 def _absolute(url: str, href: str) -> str:
     return urljoin(url, href)
+
 
 async def _fetch(session: aiohttp.ClientSession, url: str) -> str:
     async with session.get(url, headers={"User-Agent": USER_AGENT}, timeout=aiohttp.ClientTimeout(total=30)) as resp:
         resp.raise_for_status()
         return await resp.text()
-    
+
 
 def _sanitize_url(u: str | None) -> str | None:
     if not u:
@@ -37,9 +36,10 @@ def _sanitize_url(u: str | None) -> str | None:
     p = urlparse(u)
     if p.scheme in ("http", "https") and p.netloc:
         return u
-    return None    
+    return None
 
-async def scrape_vereine_list(session: aiohttp.ClientSession) -> List[Dict]:
+
+async def scrape_vereine_list(session: aiohttp.ClientSession) -> list[dict]:
     html = await _fetch(session, BASE_LIST_URL)
     soup = BeautifulSoup(html, "html.parser")
 
@@ -65,6 +65,7 @@ async def scrape_vereine_list(session: aiohttp.ClientSession) -> List[Dict]:
         vereine.append({"id": slug, "name": name, "url": url})
     return vereine
 
+
 def _cleanup_city(city: str | None) -> str | None:
     if not city:
         return None
@@ -74,11 +75,13 @@ def _cleanup_city(city: str | None) -> str | None:
     city = city.strip(" ,")
     return city or None
 
-def _parse_address_from_soup(soup: BeautifulSoup) -> Tuple[dict | None, str | None]:
+
+def _parse_address_from_soup(soup: BeautifulSoup) -> tuple[dict | None, str | None]:
     txt = soup.get_text("\n", strip=True)
     m = re.search(
         r"Anschrift\s*:\s*(.+?)(?:Kontakt|Über uns|Sportschule|Newsletter|Datenschutzerklärung|Impressum|$)",
-        txt, flags=re.I | re.S
+        txt,
+        flags=re.I | re.S,
     )
     block = m.group(1).strip() if m else None
 
@@ -112,7 +115,8 @@ def _parse_address_from_soup(soup: BeautifulSoup) -> Tuple[dict | None, str | No
     address = {k: v for k, v in address.items() if v}
     return (address if address else None), found_url
 
-async def scrape_verein_detail(session: aiohttp.ClientSession, url: str) -> Dict:
+
+async def scrape_verein_detail(session: aiohttp.ClientSession, url: str) -> dict:
     html = await _fetch(session, url)
     soup = BeautifulSoup(html, "html.parser")
 
@@ -126,7 +130,16 @@ async def scrape_verein_detail(session: aiohttp.ClientSession, url: str) -> Dict
     email = None
     phone = None
     website = None
-    SOCIAL = ("facebook.com","instagram.com","tiktok.com","youtube.com","linkedin.com","x.com","twitter.com","open.spotify.com")
+    SOCIAL = (
+        "facebook.com",
+        "instagram.com",
+        "tiktok.com",
+        "youtube.com",
+        "linkedin.com",
+        "x.com",
+        "twitter.com",
+        "open.spotify.com",
+    )
     for a in soup.find_all("a", href=True):
         href = a["href"].strip()
         if href.startswith("mailto:"):
@@ -142,7 +155,7 @@ async def scrape_verein_detail(session: aiohttp.ClientSession, url: str) -> Dict
     if not website and extra_url:
         website = extra_url
 
-    website = _sanitize_url(website)    
+    website = _sanitize_url(website)
 
     if website and website.strip().lower() in {"http://", "https://"}:
         website = None
@@ -157,12 +170,14 @@ async def scrape_verein_detail(session: aiohttp.ClientSession, url: str) -> Dict
 
     return {k: v for k, v in detail.items() if v}
 
-async def scrape_all() -> Dict[str, Dict]:
+
+async def scrape_all() -> dict[str, dict]:
     connector = aiohttp.TCPConnector(limit_per_host=CONCURRENCY, ssl=False)
     async with aiohttp.ClientSession(connector=connector) as session:
         vereine = await scrape_vereine_list(session)
 
         sem = asyncio.Semaphore(CONCURRENCY)
+
         async def work(v):
             async with sem:
                 details = await scrape_verein_detail(session, v["url"])
@@ -170,7 +185,7 @@ async def scrape_all() -> Dict[str, Dict]:
                 return v["id"], data
 
         results = await asyncio.gather(*[work(v) for v in vereine], return_exceptions=True)
-        out: Dict[str, Dict] = {}
+        out: dict[str, dict] = {}
         for res in results:
             if isinstance(res, Exception):
                 continue
