@@ -6,7 +6,7 @@ Globals:
   Function:
     Runtime: python3.11
     Timeout: 60
-    MemorySize: 1024
+    MemorySize: 512
     Architectures: [arm64]
     Tracing: Active
     Environment:
@@ -22,12 +22,19 @@ Resources:
       FunctionName: hfv-vereine-api
       Policies:
         - AWSLambdaBasicExecutionRole
+
+      AutoPublishAlias: live
+
+      ProvisionedConcurrencyConfig:
+        ProvisionedConcurrentExecutions: 1
+
       FunctionUrlConfig:
         AuthType: NONE
         Cors:
           AllowOrigins: ['*']
           AllowHeaders: ['*']
           AllowMethods: ['GET']
+        Qualifier: live
 
   LogsRetention:
     Type: AWS::Logs::LogGroup
