@@ -5,8 +5,8 @@ Description: HFV Vereine FastAPI on Lambda (Function URL)
 Globals:
   Function:
     Runtime: python3.11
-    Timeout: 15
-    MemorySize: 512
+    Timeout: 60
+    MemorySize: 1024
     Architectures: [arm64]
     Tracing: Active
     Environment:

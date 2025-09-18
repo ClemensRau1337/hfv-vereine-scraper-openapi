@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import os
 from contextlib import asynccontextmanager
 
@@ -18,7 +19,12 @@ async def lifespan(app: FastAPI):
         await cache.load_cache()
     except Exception:
         pass
+
+    if cache.is_stale():
+        asyncio.create_task(cache.refresh_cache(force=True))
+
     yield
+
     try:
         await cache.close()
     except Exception:
@@ -43,7 +49,12 @@ app.add_middleware(
 
 @app.get("/vereine", response_model=list[VereinListItem])
 async def get_vereine():
-    data = await cache.get_all()
+    try:
+        data = await cache.get_all()
+    except Exception:
+        raise HTTPException(status_code=503, detail="Cache wird aufgebaut, bitte kurz später erneut versuchen.")
+    if not data:
+        raise HTTPException(status_code=503, detail="Cache wird aufgebaut, bitte kurz später erneut versuchen.")
     return [{"id": v["id"], "name": v["name"], "url": v["url"]} for v in data]
 
 
