@@ -65,3 +65,9 @@ Thumbs.db
 
 # Jupyter
 .ipynb_checkpoints/
+
+# SAM build artifacts
+.aws-sam/
+
+*.pem
+*.key
