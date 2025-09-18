@@ -8,8 +8,10 @@
 [![Last Commit](https://img.shields.io/github/last-commit/ClemensRau1337/hfv-vereine-scraper-openapi)](https://github.com/ClemensRau1337/hfv-vereine-scraper-openapi/commits)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 
-[![Docs](https://img.shields.io/badge/OpenAPI-Docs-blue)](https://hfv-vereine-scraper-openapi.prod.wyndiq.de/docs)
-[![OpenAPI JSON](https://img.shields.io/badge/OpenAPI-JSON-informational)](https://hfv-vereine-scraper-openapi.prod.wyndiq.de/openapi.json)
+[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen?logo=fastapi)](https://5lsowpjrbxps4pukffbiytebdu0tffuf.lambda-url.eu-central-1.on.aws)
+[![Demo Status](https://img.shields.io/website?url=https%3A%2F%2F5lsowpjrbxps4pukffbiytebdu0tffuf.lambda-url.eu-central-1.on.aws&label=demo&up_message=online&down_message=offline)](https://5lsowpjrbxps4pukffbiytebdu0tffuf.lambda-url.eu-central-1.on.aws)
+[![Docs](https://img.shields.io/badge/OpenAPI-Docs-blue)](https://5lsowpjrbxps4pukffbiytebdu0tffuf.lambda-url.eu-central-1.on.aws/docs)
+[![OpenAPI JSON](https://img.shields.io/badge/OpenAPI-JSON-informational)](https://5lsowpjrbxps4pukffbiytebdu0tffuf.lambda-url.eu-central-1.on.aws/openapi.json)
 
 Open-Source FastAPI, der Vereine vom **Hamburger Fußball-Verband** (Quelle: <https://www.hfv.de/vereine>) scraped, cached und über 2 Endpunkte anbietet.
 

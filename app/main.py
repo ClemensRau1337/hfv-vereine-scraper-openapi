@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
@@ -12,9 +13,16 @@ from .models import Verein, VereinListItem
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await cache.load_cache()
+    os.environ.setdefault("CACHE_FILE", "/tmp/vereine_cache.json")
+    try:
+        await cache.load_cache()
+    except Exception:
+        pass
     yield
-    await cache.close()
+    try:
+        await cache.close()
+    except Exception:
+        pass
 
 
 app = FastAPI(
@@ -45,6 +53,5 @@ async def get_verein(identifier: str):
     if not data:
         raise HTTPException(status_code=404, detail="Verein nicht gefunden")
     return data
-
 
 handler = Mangum(app)

@@ -2,16 +2,14 @@ from __future__ import annotations
 
 import json
 import os
+from pathlib import Path
 from datetime import UTC, datetime, timedelta
 
 from . import scraper
 from .utils import slugify
 
-ROOT = os.path.dirname(os.path.dirname(__file__))
-DATA_DIR = os.path.join(ROOT, "data")
-CACHE_PATH = os.path.join(DATA_DIR, "vereine_cache.json")
 CACHE_FILE = os.getenv("CACHE_FILE", "data/vereine_cache.json")
-
+CACHE_PATH = Path(CACHE_FILE)
 
 CACHE_TTL_MINUTES = int(os.getenv("CACHE_TTL_MINUTES", "1440"))
 
@@ -19,7 +17,7 @@ _cache: dict[str, dict] = {}
 _last_loaded: datetime | None = None
 
 
-def _now():
+def _now() -> datetime:
     return datetime.now(UTC)
 
 
@@ -34,12 +32,16 @@ def _is_file_fresh(ts: str | None) -> bool:
 
 
 async def load_cache() -> None:
+    """Lädt Cache-Datei, wenn frisch – sonst initialer Refresh."""
     global _cache, _last_loaded
-    os.makedirs(DATA_DIR, exist_ok=True)
-    if os.path.exists(CACHE_PATH):
+
+    parent = CACHE_PATH.parent
+    if parent and not parent.exists():
+        parent.mkdir(parents=True, exist_ok=True)
+
+    if CACHE_PATH.exists():
         try:
-            with open(CACHE_PATH, encoding="utf-8") as f:
-                payload = json.load(f)
+            payload = json.loads(CACHE_PATH.read_text(encoding="utf-8"))
             meta = payload.get("__meta__", {})
             data = payload.get("data", {})
             if isinstance(data, dict) and _is_file_fresh(meta.get("last_updated")):
@@ -48,22 +50,34 @@ async def load_cache() -> None:
                 return
         except Exception:
             pass
+
     await refresh_cache(force=True)
 
 
 async def refresh_cache(force: bool = False) -> None:
+    """Scraped neu, wenn veraltet oder 'force'."""
     global _cache, _last_loaded
+
     if not force and not is_stale():
         return
+
     data = await scraper.scrape_all()
     _cache = data
     _last_loaded = _now()
+
     payload = {
         "__meta__": {"last_updated": _last_loaded.isoformat()},
         "data": _cache,
     }
-    with open(CACHE_PATH, "w", encoding="utf-8") as f:
-        json.dump(payload, f, ensure_ascii=False, indent=2)
+
+    parent = CACHE_PATH.parent
+    if parent and not parent.exists():
+        parent.mkdir(parents=True, exist_ok=True)
+
+    CACHE_PATH.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
 
 
 def is_stale() -> bool:
@@ -81,6 +95,7 @@ async def get_all() -> list[dict]:
 async def get_by_identifier(identifier: str) -> dict | None:
     if is_stale():
         await refresh_cache(force=True)
+
     if identifier in _cache:
         return _cache[identifier]
 
@@ -94,5 +109,5 @@ async def get_by_identifier(identifier: str) -> dict | None:
     return None
 
 
-async def close():
+async def close() -> None:
     return
