@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from mangum import Mangum
 
 from . import cache
 from .models import Verein, VereinListItem
@@ -44,3 +45,6 @@ async def get_verein(identifier: str):
     if not data:
         raise HTTPException(status_code=404, detail="Verein nicht gefunden")
     return data
+
+
+handler = Mangum(app)

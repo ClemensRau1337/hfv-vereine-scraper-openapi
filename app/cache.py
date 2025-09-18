@@ -10,6 +10,8 @@ from .utils import slugify
 ROOT = os.path.dirname(os.path.dirname(__file__))
 DATA_DIR = os.path.join(ROOT, "data")
 CACHE_PATH = os.path.join(DATA_DIR, "vereine_cache.json")
+CACHE_FILE = os.getenv("CACHE_FILE", "data/vereine_cache.json")
+
 
 CACHE_TTL_MINUTES = int(os.getenv("CACHE_TTL_MINUTES", "1440"))
 

@@ -1,6 +1,8 @@
 # hfv-vereine-scraper-openapi
 
-[![CI](https://github.com/ClemensRau1337/hfv-vereine-scraper-openapi/actions/workflows/ci.yml/badge.svg)](https://github.com/ClemensRau1337/hfv-vereine-scraper-openapi/actions)
+[![CI](https://img.shields.io/github/actions/workflow/status/ClemensRau1337/hfv-vereine-scraper-openapi/ci.yml?label=CI)](../../actions/workflows/ci.yml)
+[![Release Deploy](https://img.shields.io/github/actions/workflow/status/ClemensRau1337/hfv-vereine-scraper-openapi/release-deploy.yml?label=release%20deploy)](../../actions/workflows/release-deploy.yml)
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Version](https://img.shields.io/github/v/release/ClemensRau1337/hfv-vereine-scraper-openapi?sort=semver)](https://github.com/ClemensRau1337/hfv-vereine-scraper-openapi/releases)
 [![Last Commit](https://img.shields.io/github/last-commit/ClemensRau1337/hfv-vereine-scraper-openapi)](https://github.com/ClemensRau1337/hfv-vereine-scraper-openapi/commits)
@@ -15,8 +17,6 @@ Open-Source FastAPI, der Vereine vom **Hamburger Fußball-Verband** (Quelle: <ht
 
 - `GET /vereine` → Liste **nur** mit `id`, `name`, `url`
 - `GET /verein/{id_or_name}` → Details inkl. **strukturierter** `address` (`full`, `street`, `postcode`, `city`) sowie `phone`, `email`, `website`
-
-### Demo: <https://hfv-vereine-scraper-openapi.prod.wyndiq.de>
 
 ## Quickstart
 
