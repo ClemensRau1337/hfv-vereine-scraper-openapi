@@ -8,8 +8,6 @@
 [![Last Commit](https://img.shields.io/github/last-commit/ClemensRau1337/hfv-vereine-scraper-openapi)](https://github.com/ClemensRau1337/hfv-vereine-scraper-openapi/commits)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 
-[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen?logo=fastapi)](https://hfv-vereine-scraper-openapi.prod.wyndiq.de)
-[![Demo Status](https://img.shields.io/website?url=https%3A%2F%2Fhfv-vereine-scraper-openapi.prod.wyndiq.de&label=demo&up_message=online&down_message=offline)](https://hfv-vereine-scraper-openapi.prod.wyndiq.de)
 [![Docs](https://img.shields.io/badge/OpenAPI-Docs-blue)](https://hfv-vereine-scraper-openapi.prod.wyndiq.de/docs)
 [![OpenAPI JSON](https://img.shields.io/badge/OpenAPI-JSON-informational)](https://hfv-vereine-scraper-openapi.prod.wyndiq.de/openapi.json)
 
