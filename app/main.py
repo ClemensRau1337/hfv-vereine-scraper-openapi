@@ -11,6 +11,7 @@ from mangum import Mangum
 from . import cache
 from .models import Verein, VereinListItem
 
+from fastapi.responses import RedirectResponse
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -46,6 +47,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/", include_in_schema=False)
+def root():
+    return RedirectResponse("/docs")
 
 @app.get("/vereine", response_model=list[VereinListItem])
 async def get_vereine():

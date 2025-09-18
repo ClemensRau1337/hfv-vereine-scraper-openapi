@@ -1,0 +1,10 @@
+version = 0.1
+[default.deploy.parameters]
+stack_name = "hfv-vereine-ec2"
+resolve_s3 = true
+s3_prefix = "hfv-vereine-ec2"
+region = "eu-central-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "VpcId=\"\" SubnetId=\"\" KeyName=\"\""
+image_repositories = []

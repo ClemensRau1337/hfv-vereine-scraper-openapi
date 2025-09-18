@@ -1,48 +1,129 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Transform: AWS::Serverless-2016-10-31
-Description: HFV Vereine FastAPI on Lambda (Function URL)
+Description: HFV Vereine FastAPI on EC2 (auto-start on :80, cheapest)
 
-Globals:
-  Function:
-    Runtime: python3.11
-    Timeout: 60
-    MemorySize: 512
-    Architectures: [arm64]
-    Tracing: Active
-    Environment:
-      Variables:
-        CACHE_FILE: /tmp/vereine_cache.json
+Parameters:
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: VPC to launch into (use your default VPC id)
+  SubnetId:
+    Type: AWS::EC2::Subnet::Id
+    Description: Public subnet to launch into
+  KeyName:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: Name of an existing EC2 KeyPair to SSH
+  AmiId:
+    Type: AWS::EC2::Image::Id
+    Description: AMI ID to use (Amazon Linux 2023 arm64 in your region)
 
 Resources:
-  ApiFunction:
-    Type: AWS::Serverless::Function
+  VereineEC2SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
     Properties:
-      Handler: app.main.handler
-      CodeUri: .
-      FunctionName: hfv-vereine-api
-      Policies:
-        - AWSLambdaBasicExecutionRole
+      GroupDescription: Allow HTTP (80) and SSH (22)
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
 
-      AutoPublishAlias: live
-
-      ProvisionedConcurrencyConfig:
-        ProvisionedConcurrentExecutions: 1
-
-      FunctionUrlConfig:
-        AuthType: NONE
-        Cors:
-          AllowOrigins: ['*']
-          AllowHeaders: ['*']
-          AllowMethods: ['GET']
-        Qualifier: live
-
-  LogsRetention:
-    Type: AWS::Logs::LogGroup
+  VereineEC2Role:
+    Type: AWS::IAM::Role
     Properties:
-      LogGroupName: !Sub /aws/lambda/${ApiFunction}
-      RetentionInDays: 14
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: { Service: ec2.amazonaws.com }
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+
+  VereineEC2InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles: [!Ref VereineEC2Role]
+
+  VereineEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t4g.nano
+      ImageId: !Ref AmiId
+      KeyName: !Ref KeyName
+      IamInstanceProfile: !Ref VereineEC2InstanceProfile
+      NetworkInterfaces:
+        - DeviceIndex: 0
+          SubnetId: !Ref SubnetId
+          AssociatePublicIpAddress: true
+          GroupSet: [!Ref VereineEC2SecurityGroup]
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          set -euxo pipefail
+
+          dnf -y update
+          dnf -y install python3.11 python3.11-pip git libcap
+          python3.11 -m pip install --upgrade pip
+
+          # Port 80 ohne root erlauben (robust gegen Reboots/Restarts)
+          setcap 'cap_net_bind_service=+ep' /usr/bin/python3.11 || true
+          getcap /usr/bin/python3.11 || true
+
+          cd /home/ec2-user
+          if [ -d app/.git ]; then
+            cd app
+            sudo -u ec2-user git fetch --all --prune
+            sudo -u ec2-user git reset --hard origin/$(sudo -u ec2-user git rev-parse --abbrev-ref HEAD || echo main)
+          else
+            sudo -u ec2-user git clone https://github.com/ClemensRau1337/hfv-vereine-scraper-openapi app
+            chown -R ec2-user:ec2-user app
+            cd app
+          fi
+
+          python3.11 -m pip install -r requirements.txt || true
+          python3.11 -m pip show uvicorn >/dev/null 2>&1 || python3.11 -m pip install "uvicorn[standard]"
+          python3.11 -m pip show fastapi >/dev/null 2>&1 || python3.11 -m pip install fastapi
+
+          cat >/etc/systemd/system/fastapi.service <<'EOF'
+          [Unit]
+          Description=FastAPI app
+          Wants=network-online.target
+          After=network-online.target
+
+          [Service]
+          User=ec2-user
+          WorkingDirectory=/home/ec2-user/app
+          Environment=PYTHONPATH=/home/ec2-user/app
+          # Port 80 ohne root (zusätzlich zum setcap auf python3.11)
+          AmbientCapabilities=CAP_NET_BIND_SERVICE
+          CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+          # Falls dein Entry-Point anders ist (z.B. app.api.main:app) bitte hier anpassen:
+          ExecStart=/usr/bin/python3.11 -m uvicorn app.main:app --host 0.0.0.0 --port 80
+          Restart=always
+          RestartSec=3
+
+          [Install]
+          WantedBy=multi-user.target
+          EOF
+
+          systemctl daemon-reload
+          systemctl enable fastapi
+          systemctl restart fastapi
 
 Outputs:
-  FunctionUrl:
-    Value: !GetAtt ApiFunctionUrl.FunctionUrl
-    Description: Public Function URL
+  EC2PublicIP:
+    Description: Public IP of EC2
+    Value: !GetAtt VereineEC2Instance.PublicIp
+  EC2PublicDNS:
+    Description: Public DNS of EC2
+    Value: !GetAtt VereineEC2Instance.PublicDnsName
+  AppURLIP:
+    Description: URL to access the app via Public IP
+    Value: !Sub "http://${VereineEC2Instance.PublicIp}/"
+  AppURLDNS:
+    Description: URL to access the app via Public DNS
+    Value: !Sub "http://${VereineEC2Instance.PublicDnsName}/"
