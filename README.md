@@ -9,7 +9,6 @@
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 
 [![Live Demo](https://img.shields.io/badge/demo-live-brightgreen?logo=fastapi)](https://hfv-vereine-scraper-openapi.wyndiq.de/)
-[![Demo Status](https://img.shields.io/website?url=https%3A%2F%2Fhfv-vereine-scraper-openapi.wyndiq.de&label=demo&up_message=online&down_message=offline)](https://hfv-vereine-scraper-openapi.wyndiq.de/)
 Open-Source FastAPI, der Vereine vom **Hamburger Fußball-Verband** (Quelle: <https://www.hfv.de/vereine>) scraped, cached und über 2 Endpunkte anbietet.
 
 - `GET /vereine` → Liste **nur** mit `id`, `name`, `url`
