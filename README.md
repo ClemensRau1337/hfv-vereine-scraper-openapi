@@ -59,6 +59,10 @@ hfv_vereine_api/
 └─ LICENSE
 ```
 
+1. make docker-build
+2. docker tag hfv-vereine-scraper-api:latest clemensrau/hfv-vereine-scraper-api:latest
+3. docker push clemensrau/hfv-vereine-scraper-api:latest
+
 ## Attribution
 
 Datenquelle: **HFV.de** – <https://www.hfv.de/vereine>

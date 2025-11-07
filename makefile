@@ -1,3 +1,10 @@
+SHELL := /bin/bash
+
+# ===== Config =====
+
+IMAGE ?= hfv-vereine-scraper-api:latest
+CONTAINER ?= hfv-vereine-scraper-api
+
 .PHONY: lint format test
 
 lint:
@@ -14,3 +21,12 @@ lint-fix:
 
 test:
 	pytest -q
+
+# ===== Docker =====
+.PHONY: docker-build
+docker-build:
+	docker build -t $(IMAGE) .
+
+.PHONY: docker-run
+docker-run:
+	docker run --rm -p 8000:8000 --name $(CONTAINER) $(IMAGE)
